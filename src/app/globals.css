@@ -1,0 +1,265 @@
+@import 'tailwindcss';
+
+/*
+ * 라이트 · 다크 두 테마. 기본은 시스템 설정을 따르고, 사용자가 고르면 <html data-theme> 가 이긴다.
+ * data-theme 는 다른 유틸과 공유하는 `ml:theme` 값에서 온다 (layout.tsx 의 첫 페인트 전 스크립트,
+ * ThemeToggle.tsx). `:not([data-theme='light'])` 가드가 있어야 OS 가 다크여도 라이트를 고를 수 있다.
+ * 다크 값은 미디어 쿼리와 [data-theme='dark'] 두 곳에 같은 내용으로 둔다 — 어느 쪽이 걸려도 같아야 한다.
+ *
+ * 차트 계열색은 dataviz validate_palette.js 를 각 테마의 카드 표면(--surface-1)에 대고 통과시킨 조합이다.
+ * - 라이트 #ffffff: 자산 세 선 all-pairs CVD ΔE 9.2 · 정상 시력 24.0, 늘어남·줄어듦 CVD 21.6
+ *   (창고 청록 #1baf7a 은 표면 대비 2.82:1 — 범례 · 툴팁에 글자 라벨이 있어 허용)
+ * - 다크 #16191f: 자산 세 선 all-pairs CVD ΔE 9.4 · 정상 시력 20.9, 늘어남·줄어듦 CVD 19.2
+ * 색을 바꾸면 검증기를 다시 돌릴 것.
+ */
+:root {
+  color-scheme: light;
+
+  --surface-0: #f5f6f8; /* 페이지 바닥 */
+  --surface-1: #ffffff; /* 카드 = 차트 표면 */
+  --surface-2: #f1f3f6; /* 옅은 채움 (통계 칸 · 공백 음영 · 칩 바탕) */
+  --surface-3: #ffffff; /* 툴팁 */
+  --chip-active: #ffffff; /* 고른 칩 — 다크에서는 바탕보다 한 단 밝게 */
+
+  --ink-1: #14161a;
+  --ink-2: #4b5160;
+  --ink-3: #868c99;
+
+  --line: #e5e7ec;
+  --line-strong: #d3d7de;
+
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-ink: #1d4ed8; /* 글자용 */
+  --accent-soft: #eaf1ff;
+
+  --series-1: #2a78d6; /* 경험치 · 합계 메소 · 늘어남 */
+  --series-2: #eb6834; /* 인벤 메소 */
+  --series-3: #1baf7a; /* 창고 메소 */
+  --series-down: #e34948; /* 줄어듦 */
+  --series-avg: #14161a; /* 7일 평균 선 — 계열이 아니라 기준선이라 잉크색 */
+
+  --good: #15803d;
+  --warn: #b45309;
+  --warn-soft: #fff7e6;
+  --critical: #c42b2b;
+  --critical-soft: #fdeeee;
+  --info-soft: #f1f5fb;
+
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+  --shadow-lg: 0 8px 24px rgb(16 24 40 / 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --surface-0: #0e1014;
+    --surface-1: #16191f;
+    --surface-2: #1e222a;
+    --surface-3: #262b34;
+    --chip-active: #343945;
+    --ink-1: #eef0f4;
+    --ink-2: #b2b8c4;
+    --ink-3: #7d8494;
+    --line: #262a33;
+    --line-strong: #343945;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-ink: #7aa7ff;
+    --accent-soft: #1a2741;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-down: #e66767;
+    --series-avg: #eef0f4;
+    --good: #4ade80;
+    --warn: #fbbf24;
+    --warn-soft: #2a2414;
+    --critical: #f87171;
+    --critical-soft: #2c1819;
+    --info-soft: #1b2230;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 8px 24px rgb(0 0 0 / 0.5);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --surface-0: #0e1014;
+  --surface-1: #16191f;
+  --surface-2: #1e222a;
+  --surface-3: #262b34;
+  --chip-active: #343945;
+  --ink-1: #eef0f4;
+  --ink-2: #b2b8c4;
+  --ink-3: #7d8494;
+  --line: #262a33;
+  --line-strong: #343945;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-ink: #7aa7ff;
+  --accent-soft: #1a2741;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-down: #e66767;
+  --series-avg: #eef0f4;
+  --good: #4ade80;
+  --warn: #fbbf24;
+  --warn-soft: #2a2414;
+  --critical: #f87171;
+  --critical-soft: #2c1819;
+  --info-soft: #1b2230;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+
+@theme inline {
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink-1: var(--ink-1);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-critical: var(--critical);
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo',
+    'Noto Sans KR', sans-serif;
+}
+
+html {
+  background-color: var(--surface-0);
+}
+
+body {
+  color: var(--ink-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+/* 입력 칸 껍데기 — input 자체는 투명하게 두고 이 상자가 테두리와 포커스를 맡는다. */
+.field {
+  display: flex;
+  align-items: center;
+  background: var(--surface-1);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.field-error {
+  border-color: var(--critical);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-1);
+  color: var(--ink-1);
+  border-radius: 9px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.btn:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+.btn-danger {
+  color: var(--critical);
+}
+.btn-danger:hover:not(:disabled) {
+  background: var(--critical-soft);
+}
+.btn-sm {
+  padding: 3px 9px;
+  font-size: 12px;
+}
+
+/* 고르는 버튼 묶음 (기간 · 캐릭터 · 테마) */
+.chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface-2);
+  border-radius: 10px;
+}
+.chip {
+  border-radius: 7px;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.chip:hover {
+  color: var(--ink-1);
+}
+.chip[aria-checked='true'],
+.chip[aria-pressed='true'] {
+  background: var(--chip-active);
+  color: var(--ink-1);
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+
+.tabular,
+.num,
+input {
+  font-variant-numeric: tabular-nums;
+}
+
+input::placeholder {
+  color: var(--ink-3);
+  opacity: 0.7;
+}
+
+input[type='radio'] {
+  accent-color: var(--accent);
+}
