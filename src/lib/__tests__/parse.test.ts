@@ -42,7 +42,7 @@ describe('parseMeso', () => {
 describe('parseExpText / resolveExp', () => {
   const need72 = EXP_TABLE[72];
 
-  it('게임 문자열을 붙여 넣으면 값과 퍼센트를 함께 읽는다', () => {
+  it('값과 퍼센트를 함께 적으면 둘 다 읽는다', () => {
     expect(parseExpText('1301770001[89.15%]')).toEqual({ kind: 'both', value: 1301770001, percent: 89.15 });
     expect(parseExpText('1301770001 [89.15%')).toEqual({ kind: 'both', value: 1301770001, percent: 89.15 });
     expect(parseExpText('12.5%')).toEqual({ kind: 'percent', percent: 12.5 });
