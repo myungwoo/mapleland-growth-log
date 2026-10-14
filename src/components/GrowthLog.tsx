@@ -299,9 +299,9 @@ function Welcome({ hasCharacter }: { hasCharacter: boolean }) {
           <li>레벨마다 걸린 기간, 평소보다 큰 메소 변화</li>
         </ul>
         <p className="text-ink-3">
-          경험치 칸에는 게임 화면의 <code className="rounded bg-surface-2 px-1 text-ink-1">1301770001[89.15%]</code> 를 그대로 붙여 넣어도
-          되고, 메소는 <code className="rounded bg-surface-2 px-1 text-ink-1">1억 2500만</code> · <code className="rounded bg-surface-2 px-1 text-ink-1">3천만</code>{' '}
-          처럼 적어도 됩니다. 지난 기록은 시각을 「직접」으로 바꿔 소급해 넣을 수 있습니다.
+          경험치는 값이나 퍼센트(<code className="rounded bg-surface-2 px-1 text-ink-1">89.15%</code>)로, 메소는 <code className="rounded bg-surface-2 px-1 text-ink-1">1억 2500만</code> ·{' '}
+          <code className="rounded bg-surface-2 px-1 text-ink-1">3천만</code>처럼 적어도 됩니다. 지난 기록은 시각을 「직접」으로 바꿔 소급해 넣을 수
+          있습니다.
         </p>
       </div>
     </Panel>

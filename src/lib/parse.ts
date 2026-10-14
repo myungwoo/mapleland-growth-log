@@ -34,7 +34,7 @@ export function parseMeso(input: string): { ok: true; value: number | null } | {
   return Number.isFinite(total) ? { ok: true, value: Math.round(total) } : { ok: false };
 }
 
-/** 경험치 칸에서 읽어 낸 것. 값만, 퍼센트만, 둘 다(게임 문자열 붙여넣기) 중 하나다. */
+/** 경험치 칸에서 읽어 낸 것. 값만, 퍼센트만, 둘 다 중 하나다. */
 export type RawExp =
   | { kind: 'empty' }
   | { kind: 'invalid' }
@@ -45,8 +45,9 @@ export type RawExp =
 /**
  * 경험치 칸의 글자를 읽는다. 레벨은 보지 않는다 — 레벨과 맞춰 보는 건 `resolveExp`.
  *
- * 게임 화면의 경험치는 `1301770001[89.15%]` 꼴이라 그대로 붙여 넣을 수 있게 한다.
- * 대괄호 사이에 공백이 있거나 닫는 괄호가 빠진 복사도 받는다.
+ * 값(`1301770001`)이나 퍼센트(`89.15%`)를 받는다. 게임 화면처럼 둘을 함께 적은
+ * `1301770001[89.15%]` 도 받는데, 화면에서 안내하지는 않는다 — 다른 유틸이 URL 로 경험치를 넘길 때
+ * 이 꼴을 쓸 수 있게 둔 것이다. 대괄호 앞 공백, 닫는 괄호 누락도 받는다.
  */
 export function parseExpText(input: string): RawExp {
   const text = input.replace(/[\s,_]/g, '');
@@ -63,7 +64,7 @@ export function parseExpText(input: string): RawExp {
 }
 
 /**
- * 붙여 넣은 값과 퍼센트가 어긋나도 되는 폭(%p).
+ * 함께 적힌 값과 퍼센트가 어긋나도 되는 폭(%p).
  *
  * 게임은 퍼센트를 소수 둘째 자리에서 끊어 보여 주므로 0.01%p 안쪽은 늘 어긋난다.
  * 그 이상 어긋나면 레벨을 잘못 넣었거나 값을 잘못 옮긴 것이다.
@@ -78,7 +79,7 @@ export type ResolvedExp =
 export function resolveExp(raw: RawExp, level: number | null): ResolvedExp | null {
   if (raw.kind === 'empty') return null;
   if (raw.kind === 'invalid') {
-    return { ok: false, message: '숫자, 퍼센트(89.15%), 또는 게임 화면 그대로(1301770001[89.15%]) 넣어 주세요' };
+    return { ok: false, message: '경험치 값이나 퍼센트(89.15%)로 넣어 주세요' };
   }
   const need = level === null ? null : requiredExp(level);
   if (need === null) return { ok: false, message: '레벨을 먼저 넣어 주세요' };

@@ -234,13 +234,13 @@ export function EntryForm({
           <Field
             label="경험치"
             error={exp && !exp.ok && level !== null ? exp.message : null}
-            hint={expReadout ?? '값, 퍼센트(89.15%), 또는 게임 화면 그대로'}
+            hint={expReadout ?? '값 또는 퍼센트(89.15%)'}
           >
             <input
               className="w-full bg-transparent text-right outline-none"
               value={expText}
               onFocus={selectAll}
-              placeholder="예) 1301770001[89.15%]"
+              placeholder="예) 1301770001 또는 89.15%"
               onChange={(e) => edit(setExpText)(e.target.value)}
               aria-label="경험치"
             />
