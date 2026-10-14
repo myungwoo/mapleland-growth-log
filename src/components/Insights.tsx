@@ -287,7 +287,7 @@ function Forecast({
       </div>
       {character.goals.level === null && character.goals.meso === null && (
         <p className="mt-2 text-[12px] text-ink-3">
-          위의 「{character.name} 설정 · 목표」에서 목표 레벨 · 목표 메소를 정하면 여기에 함께 나옵니다.
+          「캐릭터 설정 · 목표」에서 목표 레벨이나 목표 메소를 정하면 여기에 함께 표시됩니다.
         </p>
       )}
     </Panel>
