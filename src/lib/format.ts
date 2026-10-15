@@ -85,7 +85,7 @@ export function formatEta(at: number, now: number): string {
   return `${formatDate(at, yearDiffers)} (${when})`;
 }
 
-/** 로컬 자정. 하루의 시작은 자정으로 고정이다 (설정으로 바꾸지 않는다). */
+/** 로컬 자정 — 달력의 날짜. 그래프 눈금 · "내일" 같은 표시에 쓴다. 날짜별 집계는 `dayStart`. */
 export function startOfDay(at: number): number {
   const d = new Date(at);
   d.setHours(0, 0, 0, 0);
@@ -97,6 +97,28 @@ export function nextDay(dayStart: number): number {
   const d = new Date(dayStart);
   d.setDate(d.getDate() + 1);
   d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+/**
+ * 날짜별 집계에서 하루가 시작하는 로컬 시각. 새벽까지 이어진 사냥을 전날로 묶으려고 오전 7시로
+ * 고정한다 (설정으로 바꾸지 않는다).
+ */
+export const DAY_START_HOUR = 7;
+
+/** `at` 이 속한 하루의 시작. 10/14 03:00 → 10/13 07:00. */
+export function dayStart(at: number): number {
+  const d = new Date(at);
+  if (d.getHours() < DAY_START_HOUR) d.setDate(d.getDate() - 1);
+  d.setHours(DAY_START_HOUR, 0, 0, 0);
+  return d.getTime();
+}
+
+/** 다음 하루의 시작. `nextDay` 와 같은 이유로 날짜를 넘긴다. */
+export function nextDayStart(day: number): number {
+  const d = new Date(day);
+  d.setDate(d.getDate() + 1);
+  d.setHours(DAY_START_HOUR, 0, 0, 0);
   return d.getTime();
 }
 
