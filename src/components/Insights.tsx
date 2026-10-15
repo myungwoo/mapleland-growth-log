@@ -101,7 +101,7 @@ export function Insights({
 
       <Panel
         title="기간 요약"
-        hint={from === null ? '첫 기록부터 마지막 기록까지' : `${formatDate(from)}부터 마지막 기록까지`}
+        hint={from === null ? '첫 기록부터 마지막 기록까지' : `${formatDate(from)} 오전 7시부터 마지막 기록까지`}
         right={<Segmented label="기간" value={range} options={RANGES} onChange={setRange} />}
       >
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -159,7 +159,7 @@ export function Insights({
         />
       </Panel>
 
-      <Panel title="날짜별 경험치" hint="기록 사이에 오른 양을 날짜별로 나눈 값">
+      <Panel title="날짜별 경험치" hint="기록 사이에 오른 양을 날짜별로 나눈 값 · 날짜는 오전 7시 기준">
         <DayBars
           ariaLabel="날짜별 얻은 경험치"
           buckets={expDays}
@@ -184,7 +184,7 @@ export function Insights({
         />
       </Panel>
 
-      <Panel title="날짜별 메소 증감" hint="합계 기준 · 지출한 날은 아래로">
+      <Panel title="날짜별 메소 증감" hint="합계 기준 · 지출한 날은 아래로 · 날짜는 오전 7시 기준">
         <DayBars
           ariaLabel="날짜별 메소 증감"
           buckets={mesoDays}

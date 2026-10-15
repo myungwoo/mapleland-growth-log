@@ -24,13 +24,21 @@ describe('mesoPoints', () => {
 });
 
 describe('dailyChanges', () => {
-  it('자정을 넘는 구간은 시간에 비례해 나누고 추정으로 표시한다', () => {
-    // 10/1 18:00 → 10/3 06:00 (36시간) 동안 3600 증가: 6h / 24h / 6h
-    const pts = expPoints([snap('2026-10-01T18:00', 10, 0), snap('2026-10-03T06:00', 10, 3600)]);
+  it('오전 7시를 넘는 구간은 시간에 비례해 나누고 추정으로 표시한다', () => {
+    // 10/1 19:00 → 10/3 13:00 (42시간) 동안 4200 증가: 12h / 24h / 6h
+    const pts = expPoints([snap('2026-10-01T19:00', 10, 0), snap('2026-10-03T13:00', 10, 4200)]);
     const days = dailyChanges(pts, null, t('2026-10-10T00:00'));
     expect(days.map((d) => formatDay(d.day))).toEqual(['10/1(목)', '10/2(금)', '10/3(토)']);
-    expect(days.map((d) => Math.round(d.value))).toEqual([600, 2400, 600]);
+    expect(days.map((d) => Math.round(d.value))).toEqual([1200, 2400, 600]);
     expect(days.every((d) => d.estimated && d.covered)).toBe(true);
+  });
+
+  it('자정을 넘겨 새벽까지 한 사냥은 전날 하루로 묶는다', () => {
+    const pts = expPoints([snap('2026-10-01T22:00', 10, 0), snap('2026-10-02T03:00', 10, 500)]);
+    const days = dailyChanges(pts, null, t('2026-10-10T00:00'));
+    expect(days).toHaveLength(1);
+    expect(formatDay(days[0].day)).toBe('10/1(목)');
+    expect(days[0]).toMatchObject({ day: t('2026-10-01T07:00'), value: 500, estimated: false });
   });
 
   it('하루 안에서 끝나는 구간만 있는 날은 실측이다', () => {
@@ -51,8 +59,8 @@ describe('dailyChanges', () => {
   });
 
   it('기간 시작 앞은 자른다', () => {
-    const pts = expPoints([snap('2026-10-01T00:00', 10, 0), snap('2026-10-05T00:00', 10, 400)]);
-    const days = dailyChanges(pts, t('2026-10-03T00:00'), t('2026-10-10T00:00'));
+    const pts = expPoints([snap('2026-10-01T07:00', 10, 0), snap('2026-10-05T07:00', 10, 400)]);
+    const days = dailyChanges(pts, t('2026-10-03T07:00'), t('2026-10-10T00:00'));
     expect(days.map((d) => formatDay(d.day))).toEqual(['10/3(토)', '10/4(일)', '10/5(월)']);
     expect(days.map((d) => Math.round(d.value))).toEqual([100, 100, 0]);
   });
@@ -82,8 +90,10 @@ describe('periodChange', () => {
 });
 
 describe('rangeStart / gaps', () => {
-  it('최근 7일은 오늘 포함', () => {
-    expect(rangeStart('7d', t('2026-10-13T15:00'))).toBe(t('2026-10-07T00:00'));
+  it('최근 7일은 오늘 포함, 오전 7시 전은 아직 전날', () => {
+    expect(rangeStart('7d', t('2026-10-13T15:00'))).toBe(t('2026-10-07T07:00'));
+    expect(rangeStart('7d', t('2026-10-14T06:59'))).toBe(t('2026-10-07T07:00'));
+    expect(rangeStart('7d', t('2026-10-14T07:00'))).toBe(t('2026-10-08T07:00'));
     expect(rangeStart('all', t('2026-10-13T15:00'))).toBeNull();
   });
 

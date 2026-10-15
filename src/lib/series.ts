@@ -1,5 +1,5 @@
 import { totalExp } from './cumulative';
-import { DAY_MS, nextDay, startOfDay } from './format';
+import { DAY_MS, dayStart, nextDayStart } from './format';
 import { totalMeso, type Snapshot } from './model';
 
 /** 시계열의 한 점. 실제 기록 위치에만 있다 — 사이를 잇는 선은 추정이다. */
@@ -49,11 +49,11 @@ export const RANGES: { key: RangeKey; label: string; days: number | null }[] = [
   { key: 'all', label: '전체', days: null },
 ];
 
-/** "최근 7일" = 오늘을 포함한 7일. 하루의 시작은 로컬 자정이다. */
+/** "최근 7일" = 오늘을 포함한 7일. 하루는 로컬 오전 7시에 시작한다 (`DAY_START_HOUR`). */
 export function rangeStart(key: RangeKey, now: number): number | null {
   const days = RANGES.find((r) => r.key === key)?.days ?? null;
   if (days === null) return null;
-  const d = new Date(startOfDay(now));
+  const d = new Date(dayStart(now));
   d.setDate(d.getDate() - (days - 1));
   return d.getTime();
 }
@@ -95,7 +95,7 @@ export function periodChange(points: Point[], from: number | null): PeriodChange
 /* ── 일 단위 배분 ─────────────────────────────────────────────────────── */
 
 export interface DayBucket {
-  /** 그날 자정. */
+  /** 그날의 시작 (오전 7시). */
   day: number;
   value: number;
   /**
@@ -116,12 +116,12 @@ export interface DayBucket {
  */
 export function dailyChanges(points: Point[], from: number | null, to: number): DayBucket[] {
   if (points.length < 2) return [];
-  const firstDay = startOfDay(Math.max(from ?? -Infinity, points[0].at));
-  const lastDay = startOfDay(Math.min(to, points[points.length - 1].at));
+  const firstDay = dayStart(Math.max(from ?? -Infinity, points[0].at));
+  const lastDay = dayStart(Math.min(to, points[points.length - 1].at));
   if (firstDay > lastDay) return [];
 
   const buckets = new Map<number, DayBucket>();
-  for (let day = firstDay; day <= lastDay; day = nextDay(day)) {
+  for (let day = firstDay; day <= lastDay; day = nextDayStart(day)) {
     buckets.set(day, { day, value: 0, estimated: false, covered: false });
   }
 
@@ -130,18 +130,18 @@ export function dailyChanges(points: Point[], from: number | null, to: number): 
     const b = points[i];
     const delta = b.value - a.value;
     if (b.at === a.at) {
-      const bucket = buckets.get(startOfDay(b.at));
+      const bucket = buckets.get(dayStart(b.at));
       if (bucket) {
         bucket.value += delta;
         bucket.covered = true;
       }
       continue;
     }
-    const spansDays = startOfDay(a.at) !== startOfDay(b.at);
-    for (let day = startOfDay(a.at); day <= b.at; day = nextDay(day)) {
+    const spansDays = dayStart(a.at) !== dayStart(b.at);
+    for (let day = dayStart(a.at); day <= b.at; day = nextDayStart(day)) {
       const bucket = buckets.get(day);
       if (!bucket) continue;
-      const overlap = Math.min(b.at, nextDay(day)) - Math.max(a.at, day);
+      const overlap = Math.min(b.at, nextDayStart(day)) - Math.max(a.at, day);
       if (overlap <= 0) continue;
       bucket.value += (delta * overlap) / (b.at - a.at);
       bucket.covered = true;
